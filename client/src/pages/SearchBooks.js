@@ -8,12 +8,12 @@ import {
   Card,
   CardColumns,
 } from "react-bootstrap";
-import { useMutation } from "@apollo/react-hooks";
 
 import Auth from "../utils/auth";
 import { searchGoogleBooks } from "../utils/API";
 import { saveBookIds, getSavedBookIds } from "../utils/localStorage";
 import { SAVE_BOOK } from "../utils/mutations";
+import { useMutation } from "@apollo/react-hooks";
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -23,13 +23,18 @@ const SearchBooks = () => {
 
   // create state to hold saved bookId values
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
-  const [saveBook] = useMutation(SAVE_BOOK);
 
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
-    return () => saveBookIds(savedBookIds);
+    // let isMounted = true; // note this flag denote mount status
+    return () => {
+      saveBookIds(savedBookIds);
+      // isMounted = false;
+    };
   });
+
+  const [saveBook, { error }] = useMutation(SAVE_BOOK);
 
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event) => {
@@ -53,7 +58,6 @@ const SearchBooks = () => {
         authors: book.volumeInfo.authors || ["No author to display"],
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
-        link: book.volumeInfo.infoLink,
         image: book.volumeInfo.imageLinks?.thumbnail || "",
       }));
 
@@ -77,11 +81,13 @@ const SearchBooks = () => {
     }
 
     try {
-      await saveBook({
-        variables: { input: bookToSave },
+      const response = await saveBook({
+        variables: {
+          input: bookToSave,
+        },
       });
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error("something went wrong!");
       }
 
@@ -91,7 +97,6 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
-
   return (
     <>
       <Jumbotron fluid className="text-light bg-dark">
