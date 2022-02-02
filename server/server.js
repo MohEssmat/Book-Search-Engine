@@ -6,7 +6,7 @@ const { authMiddleware } = require("./utils/auth");
 const path = require("path");
 const db = require("./config/connection");
 
-/ import our typeDefs and resolvers
+// import our resolvers typeDefs and
 const { typeDefs, resolvers } = require("./schemas");
 
 const app = express();
@@ -30,9 +30,9 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/build")));
 }
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build/index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../client/build/index.html"));
+// });
 
 // app.use(routes);
 
